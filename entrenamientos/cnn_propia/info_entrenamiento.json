@@ -1,0 +1,40 @@
+{
+  "modelo": "CNN propia",
+  "tiempo_entrenamiento_s": 2851.9,
+  "memoria_gpu_max_GB": 3.4,
+  "dispositivo": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "mejor_epoca": 28,
+  "configuracion": {
+    "coordenadas_relativas": true,
+    "usar_batchnorm": true,
+    "lado": 640,
+    "n_candidatas": 10,
+    "peso_caja": 3.0,
+    "peso_clase": 1.0,
+    "peso_fondo": 0.1,
+    "prob_objeto_inicial": 0.01,
+    "lambda_l2": 0.0001,
+    "epocas": 100,
+    "paciencia": 25,
+    "criterio_parada": "mAP50_95_val",
+    "tasa_aprendizaje": 0.001,
+    "momentum": 0.9,
+    "micro_lote": 3,
+    "acumular": 5,
+    "precision_mixta": true
+  },
+  "aumento_datos": {
+    "escala": 0.5,
+    "traslacion": 0.1,
+    "hsv": [
+      0.015,
+      0.7,
+      0.4
+    ],
+    "volteo": 0.5,
+    "mosaico": 0.0
+  },
+  "fraccion_train": 1.0,
+  "semilla": 42,
+  "huella_particion": "7d4e588f7cc4"
+}

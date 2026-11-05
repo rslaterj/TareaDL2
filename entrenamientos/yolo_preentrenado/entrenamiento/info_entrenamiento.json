@@ -1,0 +1,40 @@
+{
+  "modelo": "yolov8n.pt",
+  "tiempo_entrenamiento_s": 2745.3,
+  "memoria_gpu_max_GB": 2.68,
+  "dispositivo": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "hiperparametros": {
+    "freeze": null,
+    "epochs": 300,
+    "patience": 50,
+    "imgsz": 640,
+    "batch": 16,
+    "optimizer": "SGD",
+    "lr0": 0.01,
+    "lrf": 0.01,
+    "momentum": 0.937,
+    "weight_decay": 0.0005,
+    "warmup_epochs": 3.0,
+    "cos_lr": false,
+    "close_mosaic": 0,
+    "cls_pw": 0.0
+  },
+  "aumento_datos": {
+    "hsv_h": 0.015,
+    "hsv_s": 0.7,
+    "hsv_v": 0.4,
+    "degrees": 0.0,
+    "translate": 0.1,
+    "scale": 0.5,
+    "shear": 0.0,
+    "perspective": 0.0,
+    "flipud": 0.0,
+    "fliplr": 0.5,
+    "mosaic": 0.0,
+    "mixup": 0.0,
+    "cutmix": 0.0
+  },
+  "fraccion_train": 1.0,
+  "semilla": 42,
+  "huella_particion": "7d4e588f7cc4"
+}

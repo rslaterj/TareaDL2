@@ -1,0 +1,33 @@
+{
+  "modelo": "Faster R-CNN ResNet50-FPN v2 (COCO)",
+  "estado": "completo",
+  "tiempo_entrenamiento_s": 9828.5,
+  "memoria_gpu_max_GB": 3.66,
+  "dispositivo": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "mejor_epoca": 27,
+  "configuracion": {
+    "capas_entrenables_backbone": 5,
+    "lado": 640,
+    "epocas": 100,
+    "paciencia": 25,
+    "lote": 4,
+    "tasa_aprendizaje": 0.005,
+    "momentum": 0.9,
+    "weight_decay": 0.0005,
+    "precision_mixta": true
+  },
+  "aumento_datos": {
+    "escala": 0.5,
+    "traslacion": 0.1,
+    "hsv": [
+      0.015,
+      0.7,
+      0.4
+    ],
+    "volteo": 0.5,
+    "mosaico": 0.0
+  },
+  "fraccion_train": 1.0,
+  "semilla": 42,
+  "huella_particion": "7d4e588f7cc4"
+}

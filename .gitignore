@@ -1,0 +1,12 @@
+/.claude
+/CLAUDE.md
+/datasets
+/FjordFish.zip
+/PLAN_TAREA2.md
+/Rúbrica_T2_DL___2026_2.pdf
+/Tarea_2-Deep_Learning_2026-2.pdf
+/pruebas
+/runs
+/weights
+__pycache__/
+.ipynb_checkpoints/
