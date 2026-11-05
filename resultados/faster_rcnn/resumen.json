@@ -21,12 +21,12 @@
   "parametros_M": 43.394528,
   "GFLOPs": 451.0402048,
   "tamano_pesos_MB": 173.935267,
-  "ms_preproceso": 3.328277500331751,
-  "ms_inferencia": 61.2599455003874,
-  "ms_postproceso": 2.7381044999492588,
-  "ms_total_por_imagen": 67.32632750066841,
-  "FPS": 14.853030562079478,
-  "ms_inferencia_en_lote": 58.759839999584074,
+  "ms_preproceso": 3.1720435002353042,
+  "ms_inferencia": 57.82565049754339,
+  "ms_postproceso": 2.5887125014560297,
+  "ms_total_por_imagen": 63.58640649923473,
+  "FPS": 15.72663176070557,
+  "ms_inferencia_en_lote": 56.270137499814155,
   "parametros_entrenables_M": 43.394528,
   "parametros_congelados_M": 0.0
 }

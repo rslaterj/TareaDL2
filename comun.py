@@ -152,6 +152,10 @@ def evaluar_detecciones(pred, reales, nombres=None, umbral_confianza=None):
     Devuelve un diccionario con:
       - 'mAP50', 'mAP75' y 'mAP50_95': promedio del AP entre las clases que tienen cajas reales;
       - 'precision', 'recall' y 'F1' (solo si se da umbral_confianza): con IoU 0,5 y promediadas entre clases;
+      - 'precision_micro' (solo si se da umbral_confianza): fracción de las detecciones con confianza ≥ umbral que son
+        acierto con IoU 0,5, sin promediar por clase; 0,0 si no hay ninguna;
+      - 'clases_con_detecciones' (solo si se da umbral_confianza): cuántas clases con cajas reales tienen al menos una
+        detección con confianza ≥ umbral;
       - 'por_clase': tabla con instancias, predicciones, AP50, AP75 y AP50-95 de cada clase;
       - 'curva_pr': precisión media entre clases en cada nivel de recall, con IoU 0,5.
     """
@@ -178,6 +182,9 @@ def evaluar_detecciones(pred, reales, nombres=None, umbral_confianza=None):
     if umbral_confianza is not None:
         resultado["precision"], resultado["recall"], resultado["F1"] = precision_recall_en_umbral(
             pred, aciertos, reales, umbral_confianza)
+        sobre_umbral = pred.confianza.to_numpy() >= umbral_confianza
+        resultado["precision_micro"] = float(aciertos[sobre_umbral, 0].mean()) if sobre_umbral.any() else 0.0
+        resultado["clases_con_detecciones"] = int(np.isin(por_clase.clase_id, clases_pred[sobre_umbral]).sum())
     return resultado
 
 
