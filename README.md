@@ -47,7 +47,7 @@ Los cuadernos se ejecutan en orden, porque `05` lee los resultados de `01` a `04
 | 3 | `02` | 50 min | Unos minutos |
 | 4 | `03` | 50 min | Unos minutos |
 | 5 | `04` | 2 h 45 min | Unos minutos |
-| 6 | `05` | Menos de 1 min (no entrena) | |
+| 6 | `05` | Unos 2 min (no entrena) | |
 | 7 | `06` | 10 min (no entrena) | |
 
 ## Resultados
