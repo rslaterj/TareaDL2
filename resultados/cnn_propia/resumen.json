@@ -21,10 +21,10 @@
   "parametros_M": 28.651562,
   "GFLOPs": 72.7007232,
   "tamano_pesos_MB": 114.668807,
-  "ms_preproceso": 3.211894000560278,
-  "ms_inferencia": 11.971567500586389,
-  "ms_postproceso": 1.9419174987706356,
-  "ms_total_por_imagen": 17.125378999917302,
-  "FPS": 58.392868269065985,
-  "ms_inferencia_en_lote": 11.699248124932637
+  "ms_preproceso": 3.5036315003526397,
+  "ms_inferencia": 12.401154999970458,
+  "ms_postproceso": 2.3517229999197298,
+  "ms_total_por_imagen": 18.256509500242828,
+  "FPS": 54.7749831361082,
+  "ms_inferencia_en_lote": 12.172046875002707
 }

@@ -1,0 +1,7 @@
+,valor
+pérdida en la iteración 1,93.98884391784668
+pérdida final (entrenamiento),0.018243050202727318
+pérdida final (modo evaluación),0.018333697567868512
+mAP50,1.0
+mAP50-95,0.9888888888888889
+minutos,3.5568114350001756

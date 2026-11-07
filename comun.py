@@ -1,6 +1,6 @@
 """Funciones comunes a los cuadernos de la Tarea 2 (CIT3360): particiones, cajas reales y evaluación.
 
-Los cuatro modelos se evalúan con `evaluar_detecciones`, para que las métricas de la comparación se
+Todos los modelos se evalúan con `evaluar_detecciones`, para que las métricas de la comparación se
 calculen exactamente igual en todos. Las cajas van en píxeles de las imágenes de `datasets/fjordfish/`.
 
 Formato de las predicciones de un modelo sobre una partición (DataFrame o CSV):

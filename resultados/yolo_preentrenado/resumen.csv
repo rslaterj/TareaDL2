@@ -21,11 +21,11 @@ val_mAP50_95,0.269100664244135
 parametros_M,3.144564
 GFLOPs,8.7852032
 tamano_pesos_MB,6.529386
-ms_preproceso,1.368734998832224
-ms_inferencia,6.865593499533134
-ms_postproceso,1.5756134991534054
-ms_total_por_imagen,9.809941997518763
-FPS,101.93740189829164
-ms_inferencia_en_lote,2.1185326420088955
+ms_preproceso,1.4034629998423043
+ms_inferencia,7.206145500240382
+ms_postproceso,1.6029970001909533
+ms_total_por_imagen,10.21260550027364
+FPS,97.91820510184259
+ms_inferencia_en_lote,2.225904366809531
 parametros_entrenables_M,3.144548
 parametros_congelados_M,1.6e-05

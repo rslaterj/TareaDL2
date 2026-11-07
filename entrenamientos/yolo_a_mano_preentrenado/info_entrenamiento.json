@@ -1,0 +1,88 @@
+{
+  "modelo": "YOLOv3-tiny a mano preentrenada",
+  "tiempo_entrenamiento_s": 4387.6,
+  "memoria_gpu_max_GB": 2.75,
+  "dispositivo": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "mejor_epoca": 185,
+  "configuracion": {
+    "pesos_iniciales": "https://pjreddie.com/media/files/yolov3-tiny.weights",
+    "capas_de_coco": "todas menos las 2 de salida",
+    "congeladas": "ninguna",
+    "lado": 640,
+    "strides": [
+      32,
+      16
+    ],
+    "anclas": [
+      [
+        [
+          95.50656127929688,
+          36.36486053466797
+        ],
+        [
+          140.39231872558594,
+          74.82756805419922
+        ],
+        [
+          295.3331298828125,
+          148.22999572753906
+        ]
+      ],
+      [
+        [
+          21.32159996032715,
+          11.333160400390625
+        ],
+        [
+          43.00320053100586,
+          21.276302337646484
+        ],
+        [
+          54.00320053100586,
+          56.333160400390625
+        ]
+      ]
+    ],
+    "umbral_ignorar": 0.5,
+    "pesos_perdida": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "ganancia_perdida": 0.25,
+    "prob_objeto_inicial": 0.01,
+    "prob_clase_inicial": 0.03571428571428571,
+    "epocas": 300,
+    "paciencia": 50,
+    "lote": 16,
+    "lote_nominal": 64,
+    "tasa_inicial": 0.01,
+    "fraccion_tasa_final": 0.01,
+    "momentum": 0.937,
+    "weight_decay": 0.0005,
+    "epocas_calentamiento": 3.0,
+    "momentum_calentamiento": 0.8,
+    "tasa_sesgos_calentamiento": 0.1,
+    "norma_maxima_gradiente": 10.0,
+    "ema": [
+      0.9999,
+      2000
+    ],
+    "precision_mixta": true
+  },
+  "aumento_datos": {
+    "escala": 0.5,
+    "traslacion": 0.1,
+    "hsv": [
+      0.015,
+      0.7,
+      0.4
+    ],
+    "volteo": 0.5,
+    "mosaico": 0.0
+  },
+  "fraccion_train": 1.0,
+  "semilla": 42,
+  "huella_particion": "7d4e588f7cc4"
+}
