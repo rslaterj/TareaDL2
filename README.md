@@ -59,6 +59,7 @@ Los cuadernos se ejecutan en orden, porque `05` lee los resultados de `01`, `02`
 - `resultados/<modelo>/`: tablas, figuras, detecciones y resumen de cada modelo (`cnn_propia`, `yolo_desde_cero`, `yolo_a_mano`, `yolo_preentrenado`, `yolo_a_mano_preentrenado` y `faster_rcnn`).
 - `resultados/comparacion/`: tablas y figuras de `05`.
 - `resultados/robustez/`: tablas, figuras y detecciones de `06`.
+- `resultados/presentacion/`: gráficos, tablas y el diagrama de la YOLOv3-tiny para las diapositivas, uno por archivo, con los nombres y el orden de la presentación y el mismo formato y ejes en todos los modelos. Los genera `graficos_presentacion.py` (1 min, después de `05`; no usa la GPU). `guia_diapositivas.md`, en la misma carpeta, indica qué archivo va en cada diapositiva y cómo se lee.
 
 ## ✍️ Declaración de uso de IA generativa
 
