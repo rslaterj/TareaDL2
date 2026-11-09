@@ -1,0 +1,6 @@
+# Lo mismo que excluye la carpeta principal: lo pesado o regenerable no va al repositorio
+/datasets
+/pruebas
+/runs
+/weights
+/yolov8n.pt

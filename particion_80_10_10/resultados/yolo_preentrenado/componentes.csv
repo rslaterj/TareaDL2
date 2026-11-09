@@ -1,0 +1,7 @@
+componente,parámetros,entrenables,congelados,desde COCO,nuevos
+Backbone (capas 0-9),1272656,1272656,0,1272656,0
+Neck (capas 10-21),986880,986880,0,986880,0
+Head: rama de cajas,381888,381888,0,381888,0
+Head: rama de clases,503124,503124,0,496320,6804
+Head: DFL,16,0,16,16,0
+Total,3144564,3144548,16,3137760,6804

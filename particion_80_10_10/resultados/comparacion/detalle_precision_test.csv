@@ -1,0 +1,7 @@
+,Clases con detecciones,Precisión micro
+CNN propia,15,0.09055118110236221
+YOLO desde cero,22,0.6571428571428571
+YOLOv3-tiny a mano,20,0.4325980392156863
+YOLO preentrenado,22,0.7380530973451327
+Faster R-CNN,20,0.3033292231812577
+YOLOv3-tiny a mano preentrenada,19,0.458994708994709

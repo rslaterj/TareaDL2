@@ -1,0 +1,22 @@
+tramo,capa,salida,parametros,GFLOPs
+Cuerpo hasta stride 16,"Conv 3×3, 16",16 × 640 × 640,464,0.3538944
+Cuerpo hasta stride 16,Max-pool 2×2,16 × 320 × 320,0,0.0
+Cuerpo hasta stride 16,"Conv 3×3, 32",32 × 320 × 320,4672,0.9437184
+Cuerpo hasta stride 16,Max-pool 2×2,32 × 160 × 160,0,0.0
+Cuerpo hasta stride 16,"Conv 3×3, 64",64 × 160 × 160,18560,0.9437184
+Cuerpo hasta stride 16,Max-pool 2×2,64 × 80 × 80,0,0.0
+Cuerpo hasta stride 16,"Conv 3×3, 128",128 × 80 × 80,73984,0.9437184
+Cuerpo hasta stride 16,Max-pool 2×2,128 × 40 × 40,0,0.0
+Cuerpo hasta stride 16,"Conv 3×3, 256",256 × 40 × 40,295424,0.9437184
+Cuerpo hasta stride 32,Max-pool 2×2,256 × 20 × 20,0,0.0
+Cuerpo hasta stride 32,"Conv 3×3, 512",512 × 20 × 20,1180672,0.9437184
+Cuerpo hasta stride 32,"Max-pool 2×2, stride 1",512 × 20 × 20,0,0.0
+Cuerpo hasta stride 32,"Conv 3×3, 1024",1024 × 20 × 20,4720640,3.7748736
+Cuerpo hasta stride 32,"Conv 1×1, 256",256 × 20 × 20,262656,0.2097152
+Cabeza de stride 32,"Conv 3×3, 512",512 × 20 × 20,1180672,0.9437184
+Cabeza de stride 32,"Salida: conv 1×1, 99",99 × 20 × 20,50787,0.0405504
+Puente,"Conv 1×1, 128",128 × 20 × 20,33024,0.0262144
+Puente,Ampliar ×2,128 × 40 × 40,0,0.0
+Cabeza de stride 16,Concatenar con el mapa de stride 16,384 × 40 × 40,0,0.0
+Cabeza de stride 16,"Conv 3×3, 256",256 × 40 × 40,885248,2.8311552
+Cabeza de stride 16,"Salida: conv 1×1, 99",99 × 40 × 40,25443,0.0811008
