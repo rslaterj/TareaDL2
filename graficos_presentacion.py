@@ -16,7 +16,8 @@ Salidas, en resultados/presentacion/:
 - parte1_cnn_y_yolos/: la CNN y los dos YOLO desde cero, con tablas de test y de costo y gráficos.
 - seis_modelos/: los seis modelos: tabla y barras de test, mAP50-95 de test según el tiempo de entrenamiento y según los
   FPS, y mAP50-95 de validación por época y según el tiempo.
-- arquitectura/: diagrama y tabla de capas de la YOLOv3-tiny de 02b.
+- arquitectura/: diagrama y tabla de capas de la YOLOv3-tiny de 02b, y diagrama de la YOLOv8n de 02 (con sus capas en
+  CSV), que se construye con Ultralytics en la CPU.
 Las métricas salen del evaluador común de comun.py, y el script comprueba que coincidan con las tablas de 05. Los
 valores nuevos se guardan también en CSV junto a su gráfico.
 
@@ -1189,6 +1190,190 @@ def diagrama_yolov3_tiny(tabla, ruta):
     guardar(fig, ruta)
 
 
+# ----------------------------------------------------------------------------- arquitectura de YOLOv8n
+
+COLOR_YOLOV8N = COLORES["yolo_desde_cero"]   # naranja: se lee texto blanco encima
+# Capas de yolov8n.yaml en el orden de Ultralytics; el diagrama ubica cada una por su número
+TIPOS_YOLOV8N = ["Conv", "Conv", "C2f", "Conv", "C2f", "Conv", "C2f", "Conv", "C2f", "SPPF",
+                 "Upsample", "Concat", "C2f", "Upsample", "Concat", "C2f",
+                 "Conv", "Concat", "C2f", "Conv", "Concat", "C2f", "Detect"]
+
+
+def capas_yolov8n(n_clases):
+    """Cada capa de la YOLOv8n de 02 (yolov8n.yaml de Ultralytics, con las clases del dataset) con su salida a 640 px.
+
+    Construye la red en la CPU, como la crea 02 antes de entrenar, y le pasa una imagen vacía para medir cada mapa.
+    Devuelve las capas, los canales de las dos ramas de cada salida y los GFLOPs, y comprueba el tamaño con el de 02.
+    """
+    import logging
+
+    import torch
+    from ultralytics.nn.tasks import DetectionModel
+    from ultralytics.utils.torch_utils import get_flops
+
+    logging.getLogger("ultralytics").setLevel(logging.WARNING)   # sin el aviso de que cambia las 80 clases de COCO
+    red = DetectionModel("yolov8n.yaml", nc=n_clases, verbose=False).eval()
+    salidas = {}
+    ganchos = [capa.register_forward_hook(lambda _, __, salida, i=i: salidas.__setitem__(i, salida))
+               for i, capa in enumerate(red.model)]
+    with torch.no_grad():
+        red(torch.zeros(1, 3, LADO_ENTRADA, LADO_ENTRADA))
+    for gancho in ganchos:
+        gancho.remove()
+    filas = []
+    for i, capa in enumerate(red.model):
+        tipo = capa.type.split(".")[-1]
+        filas.append({"capa": i, "tipo": tipo, "desde": capa.f,
+                      "nucleo": capa.conv.kernel_size[0] if tipo == "Conv" else None,
+                      "stride": capa.conv.stride[0] if tipo == "Conv" else None,
+                      "n": len(capa.m) if tipo == "C2f" else None,
+                      "atajo": capa.m[0].add if tipo == "C2f" else None,
+                      "salida": tuple(salidas[i].shape[1:]) if torch.is_tensor(salidas[i]) else None,
+                      "parametros": sum(p.numel() for p in capa.parameters())})
+    tabla = pd.DataFrame(filas).astype({"nucleo": "Int64", "stride": "Int64", "n": "Int64"})
+    assert list(tabla.tipo) == TIPOS_YOLOV8N, "las capas no son las de yolov8n.yaml que espera el diagrama"
+    # lo que dice la nota del diagrama
+    convoluciones, c2f = tabla[tabla.tipo == "Conv"], tabla[tabla.tipo == "C2f"]
+    assert (convoluciones.nucleo == 3).all() and (convoluciones.stride == 2).all(), "hay una Conv que no es 3×3 de stride 2"
+    assert list(c2f.atajo) == [c < 10 for c in c2f.capa], "las C2f no llevan atajo solo en el cuerpo"
+    assert red.model[9].m.kernel_size == 5, "el max-pool del SPPF no es de 5×5"
+    cabeza = red.model[-1]
+    ramas = {"caja": cabeza.cv2[0][-1].out_channels, "clase": cabeza.cv3[0][-1].out_channels,
+             "valores_dfl": cabeza.reg_max, "strides": [int(s) for s in cabeza.stride]}
+    gflops = get_flops(red, LADO_ENTRADA)
+    # deben dar el tamaño que midió 02 con la red que entrenó
+    resumen = json.loads((DIR_RESULTADOS / "yolo_desde_cero" / "resumen.json").read_text(encoding="utf-8"))
+    assert tabla.parametros.sum() == round(resumen["parametros_M"] * 1e6), "los parámetros no son los de 02"
+    assert np.isclose(gflops, resumen["GFLOPs"], rtol=1e-6), "los GFLOPs no son los de 02"
+    return tabla, ramas, gflops
+
+
+def diagrama_yolov8n(capas, ramas, gflops, ruta):
+    """Diagrama de bloques de YOLOv8n con el formato del de la YOLOv3-tiny.
+
+    Arriba va el cuerpo. Debajo, los dos caminos del cuello PAN en zigzag: el que baja de 20 × 20 a 80 × 80, de derecha a
+    izquierda, y el que vuelve a subir. Abajo, las tres salidas, cada una bajo el mapa del que sale. Las coordenadas del
+    dibujo están en pulgadas. Guarda también las capas en CSV.
+    """
+    ruta.parent.mkdir(parents=True, exist_ok=True)
+    capas.assign(salida=capas.salida.map(lambda f: " × ".join(map(str, f)) if f else "")).to_csv(
+        ruta.with_name("yolov8n_capas.csv"), index=False)
+    ancho, alto = 14.3, 6.75     # la misma escala del de la YOLOv3-tiny (16 pulgadas), sin el margen vacío a la derecha
+    fig = plt.figure(figsize=(ancho, alto))
+    ax = fig.add_axes((0, 0, 1, 1))
+    ax.set(xlim=(0, ancho), ylim=(0, alto))
+    ax.axis("off")
+    bloque, paso, x0, alto_bloque = 0.84, 1.13, 1.2, 0.95    # los mismos del diagrama de la YOLOv3-tiny
+    y_fila = {"cuerpo": 5.75, "baja": 4.3, "sube": 2.85, "salidas": 1.6}
+    medio = alto_bloque / 2
+    hueco_cuerpo_baja = (y_fila["cuerpo"] + y_fila["baja"]) / 2   # altura de las líneas que cruzan entre dos filas
+    hueco_baja_sube = (y_fila["baja"] + y_fila["sube"]) / 2
+    izquierda = lambda i: x0 + i * paso                  # noqa: E731
+    centro = lambda i: izquierda(i) + bloque / 2          # noqa: E731
+    # (fila, columna) de cada capa por su número en Ultralytics. El camino que baja va bajo el cuerpo, de derecha a
+    # izquierda, para que cada concatenación quede cerca del mapa del cuerpo que recibe; el que sube vuelve a la derecha.
+    lugar = {**{i: ("cuerpo", i) for i in range(10)},
+             **{i: ("baja", 18 - i) for i in range(10, 16)},
+             **{i: ("sube", i - 12) for i in range(16, 22)}}
+    salidas = capas.desde.iloc[-1]                        # las capas de las que sale cada escala: 15, 18 y 21
+    assert capas.desde[11] == [-1, 6] and capas.desde[14] == [-1, 4] and capas.desde[17] == [-1, 12] \
+        and capas.desde[20] == [-1, 9] and salidas == [15, 18, 21], "las conexiones no son las que dibuja el diagrama"
+
+    def caja(i, fila_y, linea1, linea2, linea3, destacada=False):
+        """Un bloque con el tipo de capa, los canales (o la operación) y el tamaño de su salida."""
+        relleno, borde = (COLOR_YOLOV8N, COLOR_YOLOV8N) if destacada else (RELLENO_NEUTRO, EJE)
+        principal, secundario = ("white", "white") if destacada else (TINTA, TINTA_SECUNDARIA)
+        ax.add_patch(FancyBboxPatch((izquierda(i), fila_y - medio), bloque, alto_bloque,
+                                    boxstyle="round,pad=0,rounding_size=0.07", fc=relleno, ec=borde, lw=1.2))
+        ax.text(centro(i), fila_y + 0.27, linea1, ha="center", va="center", fontsize=10, color=secundario)
+        ax.text(centro(i), fila_y, linea2, ha="center", va="center", fontsize=13.5, fontweight="bold", color=principal)
+        ax.text(centro(i), fila_y - 0.28, linea3, ha="center", va="center", fontsize=10, color=secundario)
+
+    def flecha(puntos, color=TINTA_SECUNDARIA, grosor=1.4):
+        """Línea por los puntos dados, con punta de flecha al final."""
+        xs, ys = zip(*puntos)
+        ax.plot(xs, ys, color=color, lw=grosor, solid_capstyle="butt")
+        ax.annotate("", puntos[-1], puntos[-2], arrowprops=dict(arrowstyle="-|>", color=color, lw=grosor,
+                                                                shrinkA=0, shrinkB=0, mutation_scale=13))
+
+    def textos(f):
+        """Las tres líneas de un bloque."""
+        canales, h, w = f.salida
+        tamano = f"{h} × {w}"
+        return {"Conv": (f"Conv {f.nucleo}×{f.nucleo}", str(canales), tamano), "C2f": (f"C2f ×{f.n}", str(canales), tamano),
+                "SPPF": ("SPPF", str(canales), tamano), "Upsample": ("Ampliar", "×2", tamano),
+                "Concat": ("Concatenar", str(canales), tamano)}[f.tipo]
+
+    for f in capas.itertuples():
+        if f.tipo != "Detect":
+            fila, i = lugar[f.capa]
+            caja(i, y_fila[fila], *textos(f))
+    # el camino principal: el cuerpo hacia la derecha, la bajada hacia la izquierda y la subida hacia la derecha
+    for capa in range(1, 22):
+        (fila_a, i_a), (fila_b, i_b) = lugar[capa - 1], lugar[capa]
+        y = y_fila[fila_b]
+        if fila_a == fila_b and i_b > i_a:
+            flecha([(izquierda(i_a) + bloque, y), (izquierda(i_b), y)])
+        elif fila_a == fila_b:
+            flecha([(izquierda(i_a), y), (izquierda(i_b) + bloque, y)])
+        elif fila_b == "baja":   # del SPPF a la primera ampliación
+            flecha([(centro(i_a), y_fila[fila_a] - medio), (centro(i_a), y), (izquierda(i_b) + bloque, y)])
+        else:                    # de la última C2f de la bajada a la primera convolución de la subida
+            flecha([(centro(i_a), y_fila["sube"]), (izquierda(i_b), y)])
+    ax.text(izquierda(0) - 0.16, y_fila["cuerpo"], "Imagen\n640 × 640\n× 3", ha="right", va="center", fontsize=11,
+            color=TINTA, linespacing=1.25)
+    # salidas: bajo la última C2f de cada escala
+    ancho_rama = ramas["caja"] + ramas["clase"]
+    for capa, stride in zip(salidas, ramas["strides"]):
+        fila, i = lugar[capa]
+        h, w = capas.salida[capa][1:]
+        caja(i, y_fila["salidas"], "Salida", str(ancho_rama), f"{h} × {w}", destacada=True)
+        flecha([(centro(i), y_fila[fila] - medio), (centro(i), y_fila["salidas"] + medio)])
+        ax.text(izquierda(i) + bloque + 0.14, y_fila["salidas"], f"Stride {stride} · {h} × {w}\nceldas de {stride} px",
+                ha="left", va="center", fontsize=11, color=TINTA, linespacing=1.35)
+    # mapas que se guardan y se concatenan después (naranjas)
+    guardadas = dict(color=COLOR_YOLOV8N, grosor=1.8)
+    _, i6 = lugar[6]
+    _, i11 = lugar[11]
+    flecha([(centro(i6), y_fila["cuerpo"] - medio), (centro(i6), hueco_cuerpo_baja), (centro(i11), hueco_cuerpo_baja),
+            (centro(i11), y_fila["baja"] + medio)], **guardadas)
+    flecha([(centro(lugar[4][1]), y_fila["cuerpo"] - medio), (centro(lugar[14][1]), y_fila["baja"] + medio)],
+           **guardadas)
+    _, i12 = lugar[12]
+    _, i17 = lugar[17]
+    flecha([(centro(i12), y_fila["baja"] - medio), (centro(i12), hueco_baja_sube), (centro(i17), hueco_baja_sube),
+            (centro(i17), y_fila["sube"] + medio)], **guardadas)
+    _, i9 = lugar[9]
+    _, i20 = lugar[20]
+    x_lado = izquierda(i9) + bloque + 0.25                # sale por el costado del SPPF, fuera de la columna de la bajada
+    flecha([(izquierda(i9) + bloque, y_fila["cuerpo"]), (x_lado, y_fila["cuerpo"]), (x_lado, hueco_baja_sube),
+            (centro(i20), hueco_baja_sube), (centro(i20), y_fila["sube"] + medio)], **guardadas)
+    # nombre de cada parte
+    borde_y = y_fila["cuerpo"] + medio + 0.16
+    ax.plot([izquierda(0), izquierda(0), izquierda(9) + bloque, izquierda(9) + bloque],
+            [borde_y - 0.08, borde_y, borde_y, borde_y - 0.08], color=GRIS, lw=1.1)
+    cuerpo = capas.iloc[:10]
+    ax.text((izquierda(0) + izquierda(9) + bloque) / 2, borde_y + 0.08,
+            f"Cuerpo: {(cuerpo.tipo == 'Conv').sum()} convoluciones de stride 2, {(cuerpo.tipo == 'C2f').sum()} C2f y SPPF, "
+            f"de 640 × 640 a {cuerpo.salida.iloc[-1][1]} × {cuerpo.salida.iloc[-1][2]} (stride 32)",
+            ha="center", va="bottom", fontsize=11.5, color=TINTA)
+    x_rotulos = izquierda(lugar[15][1]) - 0.2
+    for fila, texto in [("baja", "Cuello PAN, bajada:\nde 20 × 20 a 80 × 80"), ("sube", "Cuello PAN, subida:\nde 80 × 80 a 20 × 20"),
+                        ("salidas", "Cabeza: una salida\npor escala, sin anclas")]:
+        ax.text(x_rotulos, y_fila[fila], texto, ha="right", va="center", fontsize=11.5, color=TINTA, linespacing=1.3)
+    candidatas = sum(capas.salida[c][1] * capas.salida[c][2] for c in salidas)
+    nota = (f"Conv: convolución de stride 2, con BatchNorm y SiLU, que reduce el mapa a la mitad. C2f ×n: divide los "
+            f"canales en dos, pasa una mitad por n bloques de dos convoluciones 3×3 (con atajo solo en el cuerpo) y "
+            f"concatena todo. SPPF: tres max-pool 5×5 seguidos, concatenados. Líneas naranjas: mapas que se guardan y se "
+            f"concatenan más adelante. Cada salida (naranja) da {ancho_rama} valores por celda, de dos ramas de tres "
+            f"convoluciones: caja, {ramas['caja']} (4 lados × {ramas['valores_dfl']} valores de la DFL), y clase, "
+            f"{ramas['clase']}. Sin anclas: {entero(candidatas)} candidatas por imagen. En total, "
+            f"{entero(capas.parametros.sum())} parámetros y {decimal(gflops, 1)} GFLOPs.")
+    ax.text(0.15, 0.1, "\n".join(envolver(nota, ancho - 0.4, 10.5)), ha="left", va="bottom", fontsize=10.5,
+            color=TINTA_SECUNDARIA, linespacing=1.4)
+    guardar(fig, ruta)
+
+
 # ----------------------------------------------------------------------------- programa
 
 def topes_de_perdida(datos):
@@ -1340,6 +1525,9 @@ def main():
     capas = capas_yolov3_tiny()
     diagrama_yolov3_tiny(capas, DIR_SALIDA / "arquitectura" / "yolov3_tiny_diagrama.png")
     tabla_capas_yolov3_tiny(capas, DIR_SALIDA / "arquitectura" / "yolov3_tiny_capas.png")
+    print("Arquitectura de YOLOv8n")
+    capas, ramas, gflops = capas_yolov8n(len(nombres))
+    diagrama_yolov8n(capas, ramas, gflops, DIR_SALIDA / "arquitectura" / "yolov8n_diagrama.png")
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 tipo,YOLOv8n,YOLOv3-tiny
-Correcta,368,353
-Duplicada,14,178
-Clase equivocada,87,88
-Mal ubicada,32,101
-Clase y ubicación,10,21
-Fondo,49,75
+Correcta,366,344
+Duplicada,1,11
+Clase equivocada,85,72
+Mal ubicada,27,65
+Clase y ubicación,10,18
+Fondo,45,71

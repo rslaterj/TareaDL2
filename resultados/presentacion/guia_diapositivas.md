@@ -43,6 +43,7 @@ Otros archivos que pueden servir para las secciones ✍️ o para una diapositiv
 - En la carpeta de cada modelo: `02_perdida_caja`, `03_perdida_clase`, `04_map50_val`, `06_tasa_aprendizaje`, `07_ap50_por_clase_test`, `08_curva_pr_test`, `09_matriz_confusion_test` y las otras tres imágenes de ejemplo. En `solo_este_modelo/` están los registros que no tienen todos los modelos.
 - `anotacion_real/`: las cajas anotadas de las cuatro imágenes de ejemplo.
 - `comparacion/`: YOLOv8n y YOLOv3-tiny desde cero juntos. Incluye el mAP según el umbral de IoU, los tipos de detección, el recall según el tamaño del objeto y el costo.
+- `arquitectura/yolov8n_diagrama.png`: el diagrama de YOLOv8n, con el mismo formato y la misma escala que el de la YOLOv3-tiny. Sus capas, con la salida y los parámetros de cada una, están en `yolov8n_capas.csv`. Es el mismo en las dos particiones.
 
 ## Cómo se lee cada gráfico
 
@@ -94,7 +95,7 @@ Otros archivos que pueden servir para las secciones ✍️ o para una diapositiv
 ## ✍️ Pendiente del grupo
 
 - Las diapositivas ✍️ (15, 21, 22, 25 y 26) son del grupo: la justificación, el análisis, las conclusiones y la declaración de IA. Esta guía explica cómo leer los gráficos, pero no los interpreta.
-- La declaración de uso de IA debe mencionar que la IA generó `graficos_presentacion.py`, que produce estos gráficos, tablas y el diagrama, y la explicación de la arquitectura de la YOLOv3-tiny de esta guía.
+- La declaración de uso de IA debe mencionar que la IA generó `graficos_presentacion.py`, que produce estos gráficos, tablas y los dos diagramas, y la explicación de la arquitectura de la YOLOv3-tiny de esta guía.
 
 ## Diapositiva 11: la YOLOv3-tiny, punto por punto
 
